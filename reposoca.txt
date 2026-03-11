@@ -52,7 +52,7 @@ management-system
 manufacture
 manufacture-reporting
 margin-analysis
-mass-mailingç
+mass-mailing
 mis-builder
 mis-builder-contrib
 multi-company

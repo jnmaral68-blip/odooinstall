@@ -36,8 +36,8 @@ if [ -f "$LISTA_REPOS" ]; then
         
         TARGET_DIR="$DIR_BASE/${repo}"
         # CORRECCIÓN: Se añade $ a ${repo}
-        MY_FORK="https://github.com/SOLDIGES/{repo}.git"
-        OCA_REPO="https://github.com/OCA/{repo}.git"
+        MY_FORK="https://github.com/SOLDIGES/${repo}.git"
+        OCA_REPO="https://github.com/OCA/${repo}.git"
 
         if [ ! -d "$TARGET_DIR" ]; then
             echo "--- Intentando clonar tu fork: $repo ---"
