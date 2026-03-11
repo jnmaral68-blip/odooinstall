@@ -58,7 +58,6 @@ mis-builder-contrib
 multi-company
 odoo-pim
 OpenUpgrade
-openupgradelib
 operating-unit
 partner-contact
 payroll
