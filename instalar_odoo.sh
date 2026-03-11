@@ -71,6 +71,7 @@ fi
 echo "--- Ajustando permisos ---"
 sudo chown -R odoo:odoo /opt/odoo
 sudo chown -R odoo:odoo /var/log/odoo
+sudo chown -R jnmar:odoo /opt/odoo/odooinstall
 sudo chmod -R 775 /opt/odoo/
 
 echo "¡Proceso finalizado!"
