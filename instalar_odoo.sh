@@ -13,7 +13,7 @@ sudo apt update && sudo apt install -y git postgresql
 
 # SOLUCIÓN AL ERROR DE PROPIEDAD: Marcar /opt/odoo como seguro para Git
 cd /opt/odoo
-sudo git config --global --add safe.directory '*'
+sudo git config --system --add safe.directory '*'
 
 # Asegurar permisos iniciales para que el usuario 'odoo' pueda escribir
 sudo chown -R odoo:odoo /opt/odoo
