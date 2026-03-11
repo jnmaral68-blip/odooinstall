@@ -17,13 +17,13 @@ bank-statement-import
 brand
 business-requirement
 calendar
-commision
+commission
 community-data-files
 contract
 cooperative
 credit-control
 crm
-crowfunding
+crowdfunding
 currency
 data-protection
 ddmrp
@@ -43,7 +43,7 @@ hr
 hr-attendance
 hr-expense
 hr-holidays
-intrast-extrastat
+intrastat-extrastat
 knowledge
 l10n-spain
 mail
@@ -110,7 +110,7 @@ stock-logistics-reporting
 stock-logistics-request
 stock-logistics-reservation
 stock-logistics-shopfloor
-stock-logistics-traking
+stock-logistics-tracking
 stock-logistics-transport
 stock-logistics-warehouse
 stock-logistics-workflow
@@ -121,11 +121,11 @@ timesheet
 vertical-association
 vertical-construction
 vertical-cooperative-supermarket
-education
+vertical-education
 vertical-hotel
 vertical-medical
 vertical-ngo
-vertical-realstate
+vertical-realestate
 vertical-rental
 vertical-travel
 wallet
