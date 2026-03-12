@@ -104,7 +104,7 @@
 			# 2.- Añadir upstream (OCA) si no existe
             if ! sudo -u odoo git remote | grep -q "upstream"; then
                 sudo -u odoo git remote add upstream "$OCA_REPO"
-				sudo -u odoo fit fetch --depth 1 upstream "$BRANCH"
+				sudo -u odoo git fetch --depth 1 upstream "$BRANCH"
             fi
         fi
     done < "$LISTA_REPOS"
