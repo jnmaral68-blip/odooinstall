@@ -207,10 +207,13 @@ sudo apt update && sudo apt install -y nginx
 
 NGINX_CONF="/etc/nginx/sites-available/odoo$BRANCH"
 
-# Crear el archivo de configuración con comodines para subdominios
-# --- SECCIÓN NGINX CON UPSTREAMS ÚNICOS ---
-# Limpiamos puntos de la rama para el nombre del upstream (ej: 180 en lugar de 18.0)
+# --- SECCIÓN NGINX CORREGIDA ---
+# 1. BRANCH_CLEAN para los upstreams (ej: 180)
 BRANCH_CLEAN=$(echo $BRANCH | tr -d '.')
+
+# 2. BRANCH_DOMAIN para el server_name (ej: 18)
+BRANCH_DOMAIN=$(echo $BRANCH | cut -d. -f1)
+
 NGINX_CONF="/etc/nginx/sites-available/odoo$BRANCH"
 
 sudo bash -c "cat > $NGINX_CONF <<'EOF'
@@ -223,7 +226,8 @@ upstream odoo_chat_BRANCH_CLEAN {
 
 server {
     listen 80;
-    server_name *.vBRANCH_PLACEHOLDER.DOMAIN_PLACEHOLDER;
+    # Usamos BRANCH_DOMAIN para que quede *.v18.gdigital.loc
+    server_name *.vBRANCH_DOMAIN_PLACEHOLDER.DOMAIN_PLACEHOLDER;
 
     proxy_read_timeout 720s;
     proxy_connect_timeout 720s;
@@ -245,11 +249,11 @@ server {
 }
 EOF"
 
-# Inyectamos las variables únicas con sed
+# Inyectamos las variables con sed
 sudo sed -i "s/BRANCH_CLEAN/$BRANCH_CLEAN/g" "$NGINX_CONF"
 sudo sed -i "s/ODOO_PORT_PLACEHOLDER/$ODOO_PORT/g" "$NGINX_CONF"
 sudo sed -i "s/ODOO_CHAT_PORT_PLACEHOLDER/$ODOO_CHAT_PORT/g" "$NGINX_CONF"
-sudo sed -i "s/BRANCH_PLACEHOLDER/$BRANCH/g" "$NGINX_CONF"
+sudo sed -i "s/BRANCH_DOMAIN_PLACEHOLDER/$BRANCH_DOMAIN/g" "$NGINX_CONF"
 sudo sed -i "s/DOMAIN_PLACEHOLDER/$DOMAIN/g" "$NGINX_CONF"
 
 # Reiniciar Nginx
