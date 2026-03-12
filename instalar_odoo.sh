@@ -67,12 +67,16 @@
 	fi
 
 	if [ -d "$DIR_CORE" ]; then
-		if ! sudo -u odoo git -C "$DIR_CORE" remote | grep -q "upstream"; then
-			sudo -u odoo git -C "$DIR_CORE" remote add upstream "https://github.com/OCA/OCB.git"
+		cd "$DIR_CORE"
+		if ! sudo -u odoo git remote | grep -q "upstream"; then
+			echo "---Añadiendo upstream OCA/OCB ---"
+			sudo -u odoo git remote add upstream "https://github.com/OCA/OCB.git"
+			# Opcional: Traer metadatos del upstream sin bajar todo el historial
+			sudo -u odoo git fetch --depth 1 upstream "$BRANCH"
 		fi
 	fi
 
-# 9. Clonar repositorios de la lista --- ACTUALIZADO CON ORGANIZACIÓN ---
+# 9. Clonar repositorios de la lista
 	if [ -f "$LISTA_REPOS" ]; then
 		while IFS= read -r repo || [ -n "$repo" ]; do
 			[[ -z "$repo" || "$repo" =~ ^# ]] && continue
@@ -83,7 +87,8 @@
 
         if [ ! -d "$TARGET_DIR" ]; then
             echo "--- Repositorio: $repo ---"
-            if sudo -u odoo git clone --depth 1 --branch "$BRANCH" "$MY_FORK" "$TARGET_DIR" 2>/dev/null; then
+			# Intentar clonar Fork, si falla, clonar OCA
+            if ! sudo -u odoo git clone --depth 1 --branch "$BRANCH" "$MY_FORK" "$TARGET_DIR" 2>/dev/null; then
                 echo "   [OK] Fork de $ORGANIZACION clonado."
             else
                 echo "   [!] Fork no encontrado en $ORGANIZACION. Clonando de OCA..."
@@ -91,11 +96,16 @@
             fi
         fi
 
+		# Configuración de remotes
         if [ -d "$TARGET_DIR" ]; then
-            if ! sudo -u odoo git -C "$TARGET_DIR" remote | grep -q "upstream"; then
-                sudo -u odoo git -C "$TARGET_DIR" remote add upstream "$OCA_REPO"
+			cd "$TARGWT_DIR"
+			# 1. Asegurar que origin es la Organización
+			sudo -u odoo git remote set-url origin "$MY_FORK"
+			# 2.- Añadir upstream (OCA) si no existe
+            if ! sudo -u odoo git remote | grep -q "upstream"; then
+                sudo -u odoo git remote add upstream "$OCA_REPO"
+				sudo -u odoo fit fetch --depth 1 upstream "$BRANCH"
             fi
-            sudo -u odoo git -C "$TARGET_DIR" remote set-url origin "$MY_FORK"
         fi
     done < "$LISTA_REPOS"
 else
