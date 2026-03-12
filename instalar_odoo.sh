@@ -147,18 +147,26 @@ EOF"
 	sudo chown odoo: /etc/odoo/*.conf
 	sudo chmod 640 /etc/odoo/*.conf
 
-# 15. Generar Servicio Systemd
-	echo "--- Generando archivo de servicio en /etc/systemd/system/$SERVICE_NAME.service ---"
-	sudo bash -c "cat > /etc/systemd/system/$SERVICE_NAME.service <<EOF
+# 15. Generar Servicio Systemd ---
+SERVICE_NAME="odoo$BRANCH"
+FILE_SERVICE="/etc/systemd/system/$SERVICE_NAME.service"
+CONF_FILE="/etc/odoo/$SERVICE_NAME.conf"
+
+echo "--- Generando archivo de servicio en $FILE_SERVICE ---"
+sudo bash -c "cat > $FILE_SERVICE <<EOF
 [Unit]
 Description=Odoo $BRANCH Service
-After=postgresql.service
+After=network.target postgresql.service
 
 [Service]
 Type=simple
 User=odoo
 Group=odoo
+# Usamos la ruta absoluta del python del venv y del odoo-bin
 ExecStart=$DIR_VENV/bin/python3 $DIR_CORE/odoo-bin -c $CONF_FILE
+# Esto asegura que si falla, intente reiniciar solo
+Restart=always
+RestartSec=5
 StandardOutput=journal
 StandardError=journal
 
@@ -166,10 +174,16 @@ StandardError=journal
 WantedBy=multi-user.target
 EOF"
 
-# 17. Finalización
-	sudo systemctl daemon-reload
-	sudo systemctl enable "$SERVICE_NAME"
-	sudo chown -R odoo:odoo /opt/odoo /var/log/odoo
+# 16. Permisos críticos antes de arrancar
+sudo chown odoo:odoo "$CONF_FILE"
+sudo chmod 640 "$CONF_FILE"
+sudo chown -R odoo:odoo "$LOG_DIR"
+
+# 17. Recargar y arrancar
+sudo systemctl daemon-reload
+sudo systemctl enable "$SERVICE_NAME"
+sudo systemctl start "$SERVICE_NAME"
+
 
 	echo "--- INSTALACIÓN COMPLETADA ---"
 	echo "Instancia: $SERVICE_NAME"
