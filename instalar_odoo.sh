@@ -208,17 +208,22 @@ sudo apt update && sudo apt install -y nginx
 NGINX_CONF="/etc/nginx/sites-available/odoo$BRANCH"
 
 # Crear el archivo de configuración con comodines para subdominios
+# --- SECCIÓN NGINX CON UPSTREAMS ÚNICOS ---
+# Limpiamos puntos de la rama para el nombre del upstream (ej: 180 en lugar de 18.0)
+BRANCH_CLEAN=$(echo $BRANCH | tr -d '.')
+NGINX_CONF="/etc/nginx/sites-available/odoo$BRANCH"
+
 sudo bash -c "cat > $NGINX_CONF <<'EOF'
-upstream odoo_backend {
+upstream odoo_backend_BRANCH_CLEAN {
     server 127.0.0.1:ODOO_PORT_PLACEHOLDER;
 }
-upstream odoo_chat {
+upstream odoo_chat_BRANCH_CLEAN {
     server 127.0.0.1:ODOO_CHAT_PORT_PLACEHOLDER;
 }
 
 server {
     listen 80;
-    server_name *.BRANCH_PLACEHOLDER.DOMAIN_PLACEHOLDER;
+    server_name *.vBRANCH_PLACEHOLDER.DOMAIN_PLACEHOLDER;
 
     proxy_read_timeout 720s;
     proxy_connect_timeout 720s;
@@ -226,7 +231,7 @@ server {
     client_max_body_size 128M;
 
     location /longpolling {
-        proxy_pass http://odoo_chat;
+        proxy_pass http://odoo_chat_BRANCH_CLEAN;
     }
 
     location / {
@@ -235,19 +240,20 @@ server {
         proxy_set_header X-Forwarded-Proto \$scheme;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_redirect off;
-        proxy_pass http://odoo_backend;
+        proxy_pass http://odoo_backend_BRANCH_CLEAN;
     }
 }
 EOF"
 
-# Ahora usamos 'sed' para inyectar las variables de forma segura
+# Inyectamos las variables únicas con sed
+sudo sed -i "s/BRANCH_CLEAN/$BRANCH_CLEAN/g" "$NGINX_CONF"
 sudo sed -i "s/ODOO_PORT_PLACEHOLDER/$ODOO_PORT/g" "$NGINX_CONF"
 sudo sed -i "s/ODOO_CHAT_PORT_PLACEHOLDER/$ODOO_CHAT_PORT/g" "$NGINX_CONF"
-sudo sed -i "s/BRANCH_PLACEHOLDER/v$BRANCH/g" "$NGINX_CONF"
+sudo sed -i "s/BRANCH_PLACEHOLDER/$BRANCH/g" "$NGINX_CONF"
 sudo sed -i "s/DOMAIN_PLACEHOLDER/$DOMAIN/g" "$NGINX_CONF"
 
-sudo systemctl restart nginx
-
+# Reiniciar Nginx
+sudo nginx -t && sudo systemctl restart nginx
 # Activar la configuración y limpiar el default de Nginx
 sudo ln -sf "$NGINX_CONF" "/etc/nginx/sites-enabled/"
 sudo rm -f /etc/nginx/sites-enabled/default
