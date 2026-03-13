@@ -24,14 +24,14 @@ sudo git config --system --add safe.directory '*'
 # 8. Clonar OCB (Core) --- ACTUALIZADO CON ORGANIZACIÓN ---
 	if [ ! -d "$DIR_CORE/.git" ]; then
 		echo "--- Clonando OCB $BRANCH desde $ORGANIZACION ---"
-		sudo -u odoo git clone --depth 1 --branch "$BRANCH" "https://github.com/$ORGANIZACION/OCB.git" "$DIR_CORE"
+		sudo -u odoo git clone --depth 1 --branch "$BRANCH" "git@github.com:$ORGANIZACION/OCB.git" "$DIR_CORE"
 	fi
 
 	if [ -d "$DIR_CORE" ]; then
 		cd "$DIR_CORE"
 		if ! sudo -u odoo git remote | grep -q "upstream"; then
 			echo "---Añadiendo upstream OCA/OCB ---"
-			sudo -u odoo git remote add upstream "https://github.com/OCA/OCB.git"
+			sudo -u odoo git remote add upstream "git@github.com:OCA/OCB.git"
 			# Opcional: Traer metadatos del upstream sin bajar todo el historial
 			sudo -u odoo git fetch --depth 1 upstream "$BRANCH"
 		fi
@@ -43,8 +43,8 @@ sudo git config --system --add safe.directory '*'
 			[[ -z "$repo" || "$repo" =~ ^# ]] && continue
         
 			TARGET_DIR="$DIR_OCA/${repo}"
-			MY_FORK="https://github.com/$ORGANIZACION/${repo}.git"
-			OCA_REPO="https://github.com/OCA/${repo}.git"
+			MY_FORK="git@github.com:$ORGANIZACION/${repo}.git"
+			OCA_REPO="git@github.com:OCA/${repo}.git"
 
         if [ ! -d "$TARGET_DIR" ]; then
             echo "--- Repositorio: $repo ---"
