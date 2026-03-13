@@ -36,7 +36,7 @@ export LOG_DIR="/var/log/odoo"
 export LISTA_REPOS="$(pwd)/reposoca.txt"
 
 # --- 3. LANZAMIENTO DE MÓDULOS ---
-chmod +x 01-prep-db.sh 02-odoo-setup.sh 03-setup-nginx.sh
+chmod +x ./01-prep-db.sh ./02-odoo-setup.sh ./03-setup-nginx.sh
 
 echo -e "\n>>> Iniciando Fase 1: Sistema y PostgreSQL..."
 ./01-prep-db.sh || { echo "Falló Fase 1"; exit 1; }
