@@ -24,7 +24,7 @@ sudo git config --system --add safe.directory '*'
 # 8. Clonar OCB (Core) --- ACTUALIZADO CON ORGANIZACIÓN ---
 	if [ ! -d "$DIR_CORE/.git" ]; then
 		echo "--- Clonando OCB $BRANCH desde $ORGANIZACION ---"
-		odoo git clone --depth 1 --branch "$BRANCH" "git@github.com:$ORGANIZACION/OCB.git" "$DIR_CORE"
+		git clone --depth 1 --branch "$BRANCH" "git@github.com:$ORGANIZACION/OCB.git" "$DIR_CORE"
 	fi
 	sudo chown -R odoo:odoo "$DIR_CORE"
 	if [ -d "$DIR_CORE" ]; then
