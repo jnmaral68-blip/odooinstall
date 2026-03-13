@@ -211,13 +211,16 @@ sudo apt update && sudo apt install -y nginx
 NGINX_CONF="/etc/nginx/sites-available/odoo$BRANCH"
 
 # --- SECCIÓN NGINX CORREGIDA ---
-# 1. BRANCH_CLEAN para los upstreams (ej: 180)
-BRANCH_CLEAN=$(echo $BRANCH | tr -d '.')
-
-# 2. BRANCH_DOMAIN para el server_name (ej: 18)
+# 1. BRANCH_DOMAIN para el server_name (ej: 18)
+# De '18.0' extrae '18' (Corta en el primer punto)
 BRANCH_DOMAIN=$(echo $BRANCH | cut -d. -f1)
 
+# De '18.0' extrae '180' (Borra todos los puntos)
+BRANCH_CLEAN=$(echo $BRANCH | tr -d '.')
+
 NGINX_CONF="/etc/nginx/sites-available/odoo$BRANCH"
+
+
 
 sudo bash -c "cat > $NGINX_CONF <<'EOF'
 upstream odoo_backend_BRANCH_CLEAN {
@@ -230,7 +233,7 @@ upstream odoo_chat_BRANCH_CLEAN {
 server {
     listen 80;
     # Usamos BRANCH_DOMAIN para que quede *.v18.gdigital.loc
-    server_name *.vBRANCH_DOMAIN_PLACEHOLDER.DOMAIN_PLACEHOLDER;
+    server_name *.vBRANCH_DOMAIN_MARK.DOMAIN_MARK;
 
     proxy_read_timeout 720s;
     proxy_connect_timeout 720s;
