@@ -24,17 +24,19 @@ sudo git config --system --add safe.directory '*'
 # 8. Clonar OCB (Core) --- ACTUALIZADO CON ORGANIZACIÓN ---
 	if [ ! -d "$DIR_CORE/.git" ]; then
 		echo "--- Clonando OCB $BRANCH desde $ORGANIZACION ---"
-		sudo -u odoo git clone --depth 1 --branch "$BRANCH" "git@github.com:$ORGANIZACION/OCB.git" "$DIR_CORE"
+		odoo git clone --depth 1 --branch "$BRANCH" "git@github.com:$ORGANIZACION/OCB.git" "$DIR_CORE"
 	fi
-
+	sudo chown -R odoo:odoo "$DIR_CORE"
 	if [ -d "$DIR_CORE" ]; then
 		cd "$DIR_CORE"
-		if ! sudo -u odoo git remote | grep -q "upstream"; then
+		if ! git remote | grep -q "upstream"; then
 			echo "---Añadiendo upstream OCA/OCB ---"
-			sudo -u odoo git remote add upstream "git@github.com:OCA/OCB.git"
+			odoo git remote add upstream "git@github.com:OCA/OCB.git"
 			# Opcional: Traer metadatos del upstream sin bajar todo el historial
-			sudo -u odoo git fetch --depth 1 upstream "$BRANCH"
+			odoo git fetch --depth 1 upstream "$BRANCH"
 		fi
+		# IMPORTANTE: Ahora le damos el control al usuario odoo
+    	sudo chown -R odoo:odoo "$DIR_CORE"
 	fi
 
 # 9. Clonar repositorios de la lista
@@ -49,24 +51,25 @@ sudo git config --system --add safe.directory '*'
         if [ ! -d "$TARGET_DIR" ]; then
             echo "--- Repositorio: $repo ---"
 			# Intentar clonar Fork, si falla, clonar OCA
-            if ! sudo -u odoo git clone --depth 1 --branch "$BRANCH" "$MY_FORK" "$TARGET_DIR" 2>/dev/null; then
+            if ! git clone --depth 1 --branch "$BRANCH" "$MY_FORK" "$TARGET_DIR" 2>/dev/null; then
                 echo "   [OK] Fork de $ORGANIZACION clonado."
             else
                 echo "   [!] Fork no encontrado en $ORGANIZACION. Clonando de OCA..."
-                sudo -u odoo git clone --depth 1 --branch "$BRANCH" "$OCA_REPO" "$TARGET_DIR"
+                git clone --depth 1 --branch "$BRANCH" "$OCA_REPO" "$TARGET_DIR"
             fi
         fi
-
+		sudo chown -R odoo:odoo "$DIR_OCA"
 		# Configuración de remotes
         if [ -d "$TARGET_DIR" ]; then
 			cd "$TARGET_DIR"
 			# 1. Asegurar que origin es la Organización
-			sudo -u odoo git remote set-url origin "$MY_FORK"
+			git remote set-url origin "$MY_FORK"
 			# 2.- Añadir upstream (OCA) si no existe
-            if ! sudo -u odoo git remote | grep -q "upstream"; then
-                sudo -u odoo git remote add upstream "$OCA_REPO"
-				sudo -u odoo git fetch --depth 1 upstream "$BRANCH"
+            if ! git remote | grep -q "upstream"; then
+                git remote add upstream "$OCA_REPO"
+				git fetch --depth 1 upstream "$BRANCH"
             fi
+			sudo chown -R odoo:odoo "$DIR_OCA"
         fi
     done < "$LISTA_REPOS"
 else
