@@ -18,7 +18,9 @@
 
 # 4. Configurar permisos para el usuario actual
 	sudo usermod -g odoo $REAL_USER
-	sudo chmod -R g+w /opt/odoo
+	sudo chown -R odoo:odoo /opt
+	sudo chmod -R g+w /opt
+	sudo chmod -R 775 /opt/odoo
 	source ~/.bashrc
 
 echo "--- Clonando y configurando Odoo $BRANCH ---"
