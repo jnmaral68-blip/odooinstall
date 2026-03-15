@@ -5,21 +5,25 @@ echo "=============================================="
 echo " CONFIGURACIÓN DE INSTANCIA ODOO "
 echo "=============================================="
 
-read -p "Rama de Odoo/OCA (ej. 18.0, 19.0) [18.0]: " BRANCH
-export BRANCH=${BRANCH:-18.0}
+read -p "Rama de Odoo/OCA (ej. 18.0, 19.0): " BRANCH
+if [ -z "$BRANCH" ]; then echo "Error: Rama obligatoria"; exit 1; fi
+export BRANCH
 
 read -p "Organización de GitHub (tu fork): " ORGANIZACION
 if [ -z "$ORGANIZACION" ]; then echo "Error: Organización obligatoria"; exit 1; fi
 export ORGANIZACION
 
-read -p "Dominio base [gdigital.loc]: " DOMAIN
-export DOMAIN=${DOMAIN:-gdigital.loc}
+read -p "Dominio base: " DOMAIN
+if [ -z "$DOMAIN" ]; then echo "Error: Dominio obligatorio"; exit 1; fi
+export DOMAIN
 
-read -p "Puerto HTTP [8069]: " ODOO_PORT
-export ODOO_PORT=${ODOO_PORT:-8069}
+read -p "Puerto HTTP: " ODOO_PORT
+if [ -z "$ODOO_PORT" ]; then echo "Error: Puerto HTTP obligatorio"; exit 1; fi
+export ODOO_PORT
 
-read -p "Puerto Longpolling [8072]: " ODOO_CHAT_PORT
-export ODOO_CHAT_PORT=${ODOO_CHAT_PORT:-8072}
+read -p "Puerto Longpolling: " ODOO_CHAT_PORT
+if [ -z "$ODOO_CHAT_PORT" ]; then echo "Error: Puerto Longpolling obligatorio"; exit 1; fi
+export ODOO_CHAT_PORT
 
 # --- 2. CÁLCULO DE VARIABLES DERIVADAS (Exportadas) ---
 export BRANCH_CLEAN
