@@ -23,7 +23,10 @@ BRANCH_DOMAIN=$(echo "$BRANCH" | cut -d. -f1)
 BASE_INSTANCIA="/opt/odoo/$BRANCH_DOMAIN"
 DIR_CORE="$BASE_INSTANCIA/odoo"
 DIR_OCA="$BASE_INSTANCIA/oca"
-LISTA_REPOS="$(pwd)/reposoca.txt"
+# Detectar la raíz del repo (un nivel arriba de /scripts)
+REPO_ROOT=$(dirname "$(readlink -f "$0")")/..
+LISTA_REPOS="$REPO_ROOT/config/reposoca.txt"
+
 
 if [ ! -f "$LISTA_REPOS" ]; then
     echo "Error: No se encuentra $LISTA_REPOS"
@@ -32,7 +35,7 @@ fi
 
 echo "--- Actualizando repositorios desde upstream (OCA) para rama $BRANCH ---"
 
-LOG_INCOHERENCIAS="/var/log/odoo/repos_con_divergencias_${BRANCH}.log"
+LOG_INCOHERENCIAS="/var/log/odoo/repos_con_divergencias_${BRANCH_DOMAIN}.log"
 echo "Preparando log en $LOG_INCOHERENCIAS ..."
 > "$LOG_INCOHERENCIAS" || { echo "Error: no se puede escribir en $LOG_INCOHERENCIAS (¿permisos? ¿sudo?)"; exit 1; }
 MAX_SIZE=1024 # 1 MB en KB
@@ -52,39 +55,40 @@ if [ -f "$LOG_INCOHERENCIAS" ]; then
         touch "$LOG_INCOHERENCIAS"
     fi
 fi
-# Función para actualizar un repo
+# Función para actualizar un repo (CORREGIDA)
 update_repo() {
     local repo_path=$1
     local repo_name=$(basename "$repo_path")
     
     if [ -d "$repo_path/.git" ]; then
-       cd "$repo_path" || return
-       # 1. Traer novedades sin tocar nada
+        cd "$repo_path" || return
+        # 1. Traer novedades
         echo "   Fetching upstream/$BRANCH en $repo_name (timeout ${FETCH_TIMEOUT}s) ..."
         if ! timeout "$FETCH_TIMEOUT" git fetch upstream "$BRANCH"; then
-            echo "   [ERROR] Timeout o fallo de conexión al hacer fetch de $repo_name. Comprueba la red y vuelve a ejecutar el script."
-            cd - > /dev/null || true
+            echo "   [ERROR] Timeout o fallo en $repo_name."
+            cd - > /dev/null || true # Volver atrás antes de salir
             exit 1
         fi
 
-        # 2. Comprobar incoherencias (¿Hay commits en local que no están en upstream?)
-        # Esto detecta si la OCA ha hecho un "force push" o si tu rama divergió.
+        # 2. Comprobar incoherencias
         BEHIND=$(git rev-list HEAD..upstream/"$BRANCH" --count)
         AHEAD=$(git rev-list upstream/"$BRANCH"..HEAD --count)
         
         if [ "$AHEAD" -gt 0 ]; then
-            echo "[ALERTA] $repo_name tiene $AHEAD commits divergentes. Registrando..."
-            echo "$(date '+%Y-%m-%d %H:%M:%S') - REPO: $repo_name - Divergencia: $AHEAD commits por delante/distintos de la OCA" >> "$LOG_INCOHERENCIAS"
+            echo "[ALERTA] $repo_name tiene $AHEAD commits divergentes."
+            echo "$(date '+%Y-%m-%d %H:%M:%S') - REPO: $repo_name - Divergencia: $AHEAD commits" >> "$LOG_INCOHERENCIAS"
         fi
 
-        # 3. Aplicar el reset para unificar
-        echo "--- Sincronizando $repo_name ---"
+        # 3. Sincronizar servidor con Upstream
+        echo "--- Sincronizando $repo_name con Upstream ---"
         if git reset --hard "upstream/$BRANCH" > /dev/null 2>&1; then
-            echo "   [OK] $repo_name ahora es idéntico a la OCA."
-            git push origin "$BRANCH" --force > /dev/null 2>&1
+            echo "   [OK] $repo_name actualizado."
         else
             echo "   [ERROR] Fallo crítico al resetear $repo_name."
         fi
+        
+        # 4. VOLVER A LA CARPETA ANTERIOR (Crucial para el bucle)
+        cd - > /dev/null || true
     fi
 }
 
