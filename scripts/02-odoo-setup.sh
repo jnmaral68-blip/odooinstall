@@ -150,6 +150,7 @@ $CHAT_PARAM
 addons_path = $ADDONS_PATH
 logfile = $LOG_DIR/$SERVICE_NAME.log
 workers = 5
+unaccent = True
 EOF"
 
 # 15. Generar Servicio Systemd ---
