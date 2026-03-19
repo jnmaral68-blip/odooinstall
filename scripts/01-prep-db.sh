@@ -31,5 +31,18 @@ if ! sudogrep -q "0.0.0.0/0" "$PG_HBA"; then
     echo "host    all             all             0.0.0.0/0               trust" | sudo tee -a "$PG_HBA"
 fi
 
+echo "--- Habilitando extensión unaccent en PostgreSQL ---"
+
+# 1. Habilitar en template1 para que cualquier base de datos NUEVA la tenga por defecto
+sudo -u postgres psql -d template1 -c "CREATE EXTENSION IF NOT EXISTS unaccent;"
+
+# 2. Habilitar en tu base de datos actual (maralva18)
+# Cambia 'maralva18' por el nombre de tu BD si es distinto
+IF_DB_EXISTS=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='maralva18'")
+if [ "$IF_DB_EXISTS" = "1" ]; then
+    sudo -u postgres psql -d maralva18 -c "CREATE EXTENSION IF NOT EXISTS unaccent;"
+    echo "Unaccent habilitado en maralva18"
+fi
+
 # 4. Reiniciar para aplicar cambios
 sudo systemctl restart postgresql
