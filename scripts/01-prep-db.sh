@@ -59,4 +59,4 @@ sudo apt-get install -y \
     libwebp-dev liblcms2-dev libtiff5-dev libcairo2-dev \
     libgirepository1.0-dev libfreetype6-dev libharfbuzz-dev \
     libfribidi-dev libxcb1-dev fonts-dejavu-core fonts-freefont-ttf \
-    libssl-dev node-less npmdeactiva python3-pip
+    libssl-dev node-less npm python3-pip
